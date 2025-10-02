@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 from fastapi.testclient import TestClient
-from httpx import AsyncClient, Request, Response
+from httpx import AsyncClient, Request, Response, ASGITransport
 
 os.environ["ENV_STATE"] = "test"
 from storeapi.database import database, user_table  # noqa: E402
@@ -28,9 +28,17 @@ async def db() -> AsyncGenerator:
     await database.disconnect()
 
 
+# @pytest.fixture()
+# async def async_client(client) -> AsyncGenerator:
+#     async with AsyncClient(app=app, base_url=client.base_url) as ac:
+#         yield ac
+
 @pytest.fixture()
-async def async_client(client) -> AsyncGenerator:
-    async with AsyncClient(app=app, base_url=client.base_url) as ac:
+async def async_client() -> AsyncGenerator[AsyncClient, None]:
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test"  # doesn't need to match client.base_url
+    ) as ac:
         yield ac
 
 

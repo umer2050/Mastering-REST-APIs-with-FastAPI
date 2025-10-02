@@ -80,7 +80,7 @@ async def test_login_user_not_confirmed(
             "password": registered_user["password"],
         },
     )
-    assert response.status_code == 400
+    assert response.status_code == 401
 
 
 @pytest.mark.anyio
